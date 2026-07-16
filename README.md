@@ -164,4 +164,4 @@ This project is open-source. Feel free to add a license of your choice (MIT reco
 ## 👤 Author
 
 Made by **Hossam** — Flutter Developer.
-Connect on [LinkedIn]([https://linkedin.com](https://www.linkedin.com/in/hossam-hesham-b5283b254)) if you'd like to talk Flutter architecture, BLoC, or Clean Architecture patterns.
+Connect on [LinkedIn]([https://www.linkedin.com/in/hossam-hesham-b5283b254]) if you'd like to talk Flutter architecture, BLoC, or Clean Architecture patterns.
