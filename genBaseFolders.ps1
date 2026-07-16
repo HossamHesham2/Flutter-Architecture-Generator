@@ -76,84 +76,86 @@ Write-Host ""
 $files = @{
 
 # ENTRY POINT
-    "lib/main.dart"                           = @'
+    "lib/main.dart"                           = @"
 import 'package:flutter/material.dart';
 import 'app/my_app.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'app/observers/app_observer.dart';
+import 'core/helpers/prefs_helper.dart';
+
 Future<void> main() async {
-   	WidgetsFlutterBinding.ensureInitialized();
-	await PrefsHelper.instance.init();
-	Bloc.observer = AppBlocObserver();
-  	runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  await PrefsHelper.instance.init();
+  Bloc.observer = AppBlocObserver();
+  runApp(const MyApp());
 }
-'@
+"@
 
 
 
     # APP ROOT
-    "lib/app/my_app.dart"                        = @'
+    "lib/app/my_app.dart"                        = @"
 import 'package:flutter/material.dart';
-
-import 'package:$PackageName/core/router/app_routes.dart';
-import 'package:$PackageName/core/router/route_names.dart';
+import 'package:$PackageName/core/router/app_router.dart';
 import 'package:$PackageName/core/theme/app_theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-  designSize: const Size(375, 812),
-  minTextAdapt: true,
-  splitScreenMode: true,
-  builder: (_, child) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
-      initialRoute: RouteNames.login,
-      onGenerateRoute: AppRoutes.onGenerateRoute,
+      designSize: const Size(375, 812),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (_, child) {
+        return MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          routerConfig: AppRouter.router,
+        );
+      },
     );
-  },
-);
   }
 }
-'@
+"@
 
-    # ROUTES
-    "lib/core/router/app_routes.dart"          = @'
+    # GO_ROUTER CONFIG
+    "lib/core/router/app_router.dart"          = @"
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:$PackageName/core/router/route_names.dart';
 
-class AppRoutes {
-  static Route? onGenerateRoute(RouteSettings settings) {
-    switch (settings.name) {
-      case RouteNames.login:
-        return MaterialPageRoute(
-          settings: settings,
-          builder: (_) => const Scaffold(
-            body: Center(child: Text("Login Screen")),
-          ),
-        );
+class AppRouter {
+  AppRouter._();
 
-      default:
-        return MaterialPageRoute(
-          settings: settings,
-          builder: (_) => const Scaffold(
-            body: Center(child: Text("No Route Found")),
-          ),
-        );
-    }
-  }
+  static final GoRouter router = GoRouter(
+    initialLocation: RouteNames.login,
+    debugLogDiagnostics: true,
+    routes: [
+      GoRoute(
+        path: RouteNames.login,
+        name: RouteNames.login,
+        builder: (context, state) => const Scaffold(
+          body: Center(child: Text('Login Screen')),
+        ),
+      ),
+    ],
+    errorBuilder: (context, state) => const Scaffold(
+      body: Center(child: Text('No Route Found')),
+    ),
+  );
 }
-'@
+"@
     #========================
     # ROUTE NAMES
     #========================
     "lib/core/router/route_names.dart"         = @'
 class RouteNames {
+  RouteNames._();
+
   static const String login = '/login';
 }
 '@
@@ -209,7 +211,7 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static final ThemeData light = ThemeData(
     useMaterial3: true,
- brightness: Brightness.light,
+    brightness: Brightness.light,
   );
 
   static final ThemeData dark = ThemeData(
@@ -220,7 +222,7 @@ class AppTheme {
 '@
     "lib/core/constants/app_constants.dart"   = @'
 class AppConstants {
- AppConstants._();
+  AppConstants._();
   static const appName = 'My App';
 }
 '@
@@ -512,7 +514,7 @@ Write-Host "   ├── core" -ForegroundColor DarkYellow
 Write-Host "   │   ├── constants, errors" -ForegroundColor Gray
 Write-Host "   │   ├── helpers, utils" -ForegroundColor Gray
 Write-Host "   │   └── widgets" -ForegroundColor Gray
-Write-Host "   │   ├── router" -ForegroundColor Gray
+Write-Host "   │   ├── router (go_router)" -ForegroundColor Gray
 Write-Host "   │   └── theme" -ForegroundColor Gray
 Write-Host "   └── features" -ForegroundColor DarkYellow
 Write-Host ""
@@ -532,6 +534,7 @@ $dependencies = @(
     "dio"
     "shared_preferences"
     "flutter_screenutil"
+    "go_router"
     "firebase_core"
     "firebase_auth"
     "cloud_firestore"
@@ -639,7 +642,7 @@ Add-LatestPackages -Packages $dependencies
 
 Write-Host ""
 Write-Host "▶ Updating pubspec.yaml (dev_dependencies)..." -ForegroundColor Magenta
-Add-LatestPackages -Packages $devdependencies -Dev
+Add-LatestPackages -Packages $devDependencies -Dev
 
 Write-Host ""
 Write-Host "▶ Registering assets folders in pubspec.yaml..." -ForegroundColor Magenta

@@ -1,125 +1,44 @@
-# 🏗️ FlutterArchitect
+# FlutterArchitect
 
-**Stop writing Clean Architecture boilerplate by hand.**
-FlutterArchitect is a set of PowerShell scripts that scaffolds a full **Flutter Clean Architecture** project — folder structure, base files, dependencies, and feature modules — in seconds.
+PowerShell scaffolding toolkit that generates a **Clean Architecture** Flutter project skeleton in seconds — base app structure plus repeatable feature modules — so you spend time writing business logic instead of boilerplate.
 
-Built out of the repetitive pain of setting up `data / domain / presentation` layers for every new Flutter project and every new feature. Run one command, get a production-ready skeleton, start writing actual business logic.
+Two scripts, two jobs:
 
----
-
-## ✨ What it does
-
-FlutterArchitect ships two scripts:
-
-### 1. `genBaseFolders.ps1` — Project Bootstrapper
-Run once, right after `flutter create`. It:
-
-- 📁 Creates the base architecture: `app/`, `core/` (constants, di, errors, extensions, helpers, utils, widgets, router, theme), `features/`, and `assets/` (images, svgs)
-- 📝 Generates ready-to-use boilerplate files:
-  - `main.dart` wired with `BlocObserver` and a `PrefsHelper` initializer
-  - `MyApp` root widget pre-configured with `ScreenUtilInit` and light/dark `AppTheme`
-  - A basic `AppRoutes` / `RouteNames` router setup
-  - `Failure` / `Exception` base classes for error handling
-  - A `SharedPreferences` helper (`PrefsHelper`) with get/set/remove for all primitive types
-  - `Validators`, `Logger`, `AppColors`, `AppConstants`, and a reusable `CustomTextField` widget
-  - A fixed `test/widget_test.dart` that actually matches the generated app (no more failing default counter test)
-- 📦 Adds the core dependencies your project needs — **always the latest compatible versions**, never pinned/stale:
-  - `flutter_bloc`, `equatable`, `dartz`, `get_it`, `injectable`, `dio`, `shared_preferences`, `flutter_screenutil`, `firebase_core`, `firebase_auth`, `cloud_firestore`
-  - Dev: `build_runner`, `injectable_generator`, `flutter_lints`
-- 🖼️ Registers `assets/images/` and `assets/svgs/` inside `pubspec.yaml` automatically
-- 📥 Runs `flutter pub get` for you at the end
-- 🧠 Smart enough to read your package name from `pubspec.yaml` and skip any dependency you already have — safe to re-run
-
-### 2. `genFeature.ps1` — Feature Generator
-Run any time you need a new feature. Give it a name, get a full Clean Architecture module:
-
-```
-lib/features/<feature_name>/
-├── data/
-│   ├── datasources/
-│   │   ├── remote/   → <feature>_remote_datasource.dart
-│   │   └── local/    → <feature>_local_datasource.dart
-│   ├── models/
-│   └── repositories/ → <feature>_repository_impl.dart
-├── domain/
-│   ├── entities/     → <feature>_entity.dart
-│   ├── repositories/ → <feature>_repository.dart
-│   └── usecases/
-└── presentation/
-    ├── bloc/         → <feature>_bloc.dart, _event.dart, _state.dart
-    ├── pages/
-    └── widgets/
-```
-
-The BLoC files come pre-wired (`Bloc<Event, State>`, initial state, event handler stub) so you can jump straight into writing logic instead of typing class names.
+| Script | Purpose |
+|---|---|
+| `genBaseFolders.ps1` | One-time setup: creates the app-level `core/`, `app/`, routing, theming, and installs the standard dependency stack. |
+| `genFeature.ps1` | Repeatable: generates a full `data / domain / presentation` module for a single feature (e.g. `auth`, `profile`, `notes`). |
 
 ---
 
-## 📋 Requirements
+## ✨ What it generates
 
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) installed and available in your `PATH`
-- Windows with PowerShell **5.1+**, or PowerShell **7+** (cross-platform) on macOS/Linux
-- Run scripts from the **root of a Flutter project** (a folder containing `pubspec.yaml`)
-
-> ⚠️ If PowerShell blocks script execution with an "execution policy" error, run this once in an elevated terminal:
-> ```powershell
-> Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-> ```
-
----
-
-## 🚀 Getting Started
-
-### 1. Clone this repo
-```bash
-git clone https://github.com/<your-username>/FlutterArchitect.git
-```
-
-### 2. Create your Flutter project (if you haven't already)
-```bash
-flutter create my_app
-cd my_app
-```
-
-### 3. Copy the scripts into your project root
-Copy `genBaseFolders.ps1` and `genFeature.ps1` from this repo into the root of `my_app` (next to `pubspec.yaml`).
-
-### 4. Bootstrap the architecture
-```powershell
-.\genBaseFolders.ps1
-```
-This sets up `core/`, `app/`, `features/`, `assets/`, base files, and installs dependencies.
-
-### 5. Generate a feature whenever you need one
-```powershell
-.\genFeature.ps1 -FeatureName auth
-```
-This creates `lib/features/auth/...` with the full data/domain/presentation structure and BLoC files, using `Auth` as the generated class prefix (`AuthBloc`, `AuthRepository`, etc).
-
-You can name features however you like — `auth`, `user_profile`, `home-screen` — the script converts it to a proper Dart `PascalCase` class name automatically.
-
----
-
-## 📁 Resulting Project Structure
+### `genBaseFolders.ps1`
 
 ```
-lib/
-├── app/
-│   ├── my_app.dart
-│   └── observers/
-│       └── app_observer.dart
-├── core/
-│   ├── constants/
-│   ├── di/
-│   ├── errors/
-│   ├── extensions/
-│   ├── helpers/
-│   ├── router/
-│   ├── theme/
-│   ├── utils/
-│   └── widgets/
-├── features/
-│   └── <your_features_here>/
+lib
+├── app
+│   ├── my_app.dart          MaterialApp.router + ScreenUtilInit
+│   └── observers
+│       └── app_observer.dart   BlocObserver for global logging
+├── core
+│   ├── constants
+│   ├── di
+│   ├── errors               Failure / Exception base classes
+│   ├── extensions
+│   ├── helpers
+│   │   ├── prefs_helper.dart    SharedPreferences wrapper
+│   │   └── validators.dart      Email / password / name / amount validators
+│   ├── router
+│   │   ├── app_router.dart      GoRouter config
+│   │   └── route_names.dart
+│   ├── theme
+│   │   ├── app_colors.dart
+│   │   └── app_theme.dart       Light / dark ThemeData
+│   ├── utils
+│   │   └── logger.dart
+│   └── widgets
+│       └── custom_text_field.dart
 └── main.dart
 
 assets/
@@ -127,37 +46,78 @@ assets/
 └── svgs/
 ```
 
+It also:
+- Reads the package name from `pubspec.yaml` and fixes it into generated imports automatically.
+- Overwrites the default `test/widget_test.dart` so it points at `MyApp` instead of the counter-app template Flutter ships with.
+- Adds the toolkit's standard dependency stack via `flutter pub add` (always the latest compatible version — nothing is hard-pinned): `flutter_bloc`, `equatable`, `dartz`, `get_it`, `injectable`, `dio`, `shared_preferences`, `flutter_screenutil`, `go_router`, `firebase_core`, `firebase_auth`, `cloud_firestore`, plus `build_runner`, `injectable_generator`, `flutter_lints` as dev dependencies.
+- Registers `assets/images/` and `assets/svgs/` under `flutter: assets:` in `pubspec.yaml`.
+- Runs `flutter pub get` at the end.
+
+### `genFeature.ps1`
+
+```
+lib/features/<feature_name>
+├── data
+│   ├── datasources/{remote,local}
+│   ├── models/<feature>_model.dart      extends the domain entity
+│   └── repositories/<feature>_repository_impl.dart
+├── domain
+│   ├── entities/<feature>_entity.dart
+│   ├── repositories/<feature>_repository.dart
+│   └── usecases/get_<feature>_usecase.dart
+└── presentation
+    ├── bloc/<feature>_bloc.dart, _event.dart, _state.dart
+    ├── pages/<feature>_page.dart        wired to the Bloc
+    └── widgets/
+```
+
+Class names are auto-derived from the feature name (`payment_history` → `PaymentHistory`), so every generated class, event, and state is consistently named.
+
 ---
 
-## 🧠 Why this exists
+## ⚙️ Requirements
 
-Setting up Clean Architecture by hand for every new project (and every new feature inside it) is repetitive and error-prone — you either copy-paste from an old project or rewrite the same folders and boilerplate again. FlutterArchitect turns that setup into a single command, so the structure stays consistent across every project and every feature.
+- Windows PowerShell or PowerShell 7+ (`pwsh`) on macOS/Linux
+- Flutter SDK on your `PATH`
+- Run from the **root of a Flutter project** (a folder containing `pubspec.yaml`)
 
----
+## 🚀 Usage
 
-## 🛣️ Roadmap / Ideas
+```powershell
+# 1. One-time: scaffold the base architecture
+.\genBaseFolders.ps1
 
-- [ ] `get_it` + `injectable` dependency injection wiring generated automatically per feature
-- [ ] Optional `freezed` support for models/states
-- [ ] A Bash/Zsh version for full macOS/Linux parity
-- [ ] Config file (`architect.config.json`) to customize folder names & dependencies
+# 2. Generate a feature module (repeat per feature)
+.\genFeature.ps1 -FeatureName auth
+.\genFeature.ps1 -FeatureName profile
+```
 
-Contributions and suggestions are welcome — feel free to open an issue or PR.
-
----
-
-## 🤝 Contributing
-
-1. Fork the repo
-2. Create a branch: `git checkout -b feature/your-idea`
-3. Commit your changes
-4. Open a pull request
+> Tip: put both scripts in a `tools/` folder in your Flutter template repo, or on your `PATH`, so you can run them from any new project.
 
 ---
+
+## 🔧 Enhancements in this version
+
+The original scripts had a few gaps that were fixed here:
+
+1. **Routing modernized to `go_router`.** The base generator used to build a manual `Navigator`/`onGenerateRoute` setup; it now ships an `AppRouter` (`GoRouter`) wired through `MaterialApp.router`, which scales far better once you add nested/shell routes per feature.
+2. **Broken `$PackageName` interpolation fixed.** Several generated files used single-quoted PowerShell here-strings (`@' ... '@`), which don't expand variables — so `$PackageName` was being written into `.dart` files as literal text instead of the real package name. Files that need it now use double-quoted here-strings (`@" ... "@`).
+3. **Missing import fixed.** `main.dart` called `PrefsHelper.instance.init()` without importing it — added.
+4. **`genFeature.ps1` no longer silently overwrites your code.** Previously, re-running it on an existing feature would blindly regenerate every file — wiping out anything you'd written in the bloc, page, or repository impl. It now checks each file with `Test-Path` first and skips (with a clear log line) anything that already exists, matching how the folder-creation loop already behaved.
+5. **Filled in the empty folders.** `domain/usecases`, `data/models`, and `presentation/pages` were created but never populated. The generator now drops a starter use case, a model that extends the entity (with `fromJson`/`toJson` stubs), and a page pre-wired with `BlocProvider` + `BlocBuilder`.
+6. **`genFeature.ps1` now guards on `pubspec.yaml`** the same way the base script does, so it fails fast with a clear message instead of creating a stray `lib/features` folder outside a Flutter project.
+
+## 🗺️ Suggested next steps (not yet implemented)
+
+- Auto-register each feature's dependencies (repository, use cases, bloc) into `core/di` with `get_it` + `injectable` instead of leaving DI wiring manual.
+- Add a `--riverpod` flag as an alternative to BLoC for teams that prefer it.
+- Generate a matching `test/features/<feature>/` skeleton (unit tests for the bloc and repository) alongside the feature.
+- Add the new feature's route automatically into `app_router.dart` and `route_names.dart` instead of leaving that as a manual step.
+- Package both scripts as a single PowerShell module (`Import-Module FlutterArchitect`) with `New-FlutterProject` / `New-FlutterFeature` cmdlets instead of two standalone `.ps1` files.
 
 ## 📄 License
 
-This project is open-source. Feel free to add a license of your choice (MIT recommended) via a `LICENSE` file.
+Add a license of your choice (MIT is a common pick for tooling like this) before publishing.
 
 ---
 
