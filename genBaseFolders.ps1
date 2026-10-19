@@ -1,15 +1,13 @@
 Write-Host ""
-Write-Host "╔════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║          FLUTTER ARCHITECTURE GENERATOR            					 ║" -ForegroundColor Cyan
-Write-Host "╚════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+Write-Host "+====================================================+" -ForegroundColor Cyan
+Write-Host "|          FLUTTER ARCHITECTURE GENERATOR            |" -ForegroundColor Cyan
+Write-Host "+====================================================+" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "🚀 Starting Flutter Architecture Generator..." -ForegroundColor Green
+Write-Host "Starting Flutter Architecture Generator..." -ForegroundColor Green
 Write-Host ""
-
-
 
 if (!(Test-Path "pubspec.yaml")) {
-    Write-Host "❌ pubspec.yaml not found!" -ForegroundColor Red
+    Write-Host "[X] pubspec.yaml not found!" -ForegroundColor Red
     Write-Host "Run this script inside a Flutter project." -ForegroundColor Yellow
     exit
 }
@@ -19,7 +17,7 @@ if (!(Test-Path "pubspec.yaml")) {
 $PackageName = ((Get-Content "pubspec.yaml" | Where-Object { $_ -match "^name:\s*" } | Select-Object -First 1) -replace "^name:\s*", "").Trim()
 
 if ([string]::IsNullOrWhiteSpace($PackageName)) {
-    Write-Host "⚠ Could not read 'name:' from pubspec.yaml — falling back to 'app'." -ForegroundColor Yellow
+    Write-Host "[!] Could not read 'name:' from pubspec.yaml - falling back to 'app'." -ForegroundColor Yellow
     $PackageName = "app"
 }
 
@@ -28,15 +26,12 @@ if ([string]::IsNullOrWhiteSpace($PackageName)) {
 # =========================
 $folders = @(
 
-
-
-# lib
+    # lib
     "lib",
 
     # app
     "lib/app",
     "lib/app/observers",
-
 
     # core
     "lib/core",
@@ -57,10 +52,9 @@ $folders = @(
     "assets",
     "assets/images",
     "assets/svgs"
-
 )
 
-Write-Host "▶ Creating folder structure..." -ForegroundColor Magenta
+Write-Host "> Creating folder structure..." -ForegroundColor Magenta
 
 foreach ($folder in $folders) {
     New-Item -ItemType Directory -Path $folder -Force | Out-Null
@@ -75,8 +69,8 @@ Write-Host ""
 # =========================
 $files = @{
 
-# ENTRY POINT
-    "lib/main.dart"                           = @"
+    # ENTRY POINT
+    "lib/main.dart" = @"
 import 'package:flutter/material.dart';
 import 'app/my_app.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -91,10 +85,8 @@ Future<void> main() async {
 }
 "@
 
-
-
     # APP ROOT
-    "lib/app/my_app.dart"                        = @"
+    "lib/app/my_app.dart" = @"
 import 'package:flutter/material.dart';
 import 'package:$PackageName/core/router/app_router.dart';
 import 'package:$PackageName/core/theme/app_theme.dart';
@@ -123,7 +115,7 @@ class MyApp extends StatelessWidget {
 "@
 
     # GO_ROUTER CONFIG
-    "lib/core/router/app_router.dart"          = @"
+    "lib/core/router/app_router.dart" = @"
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:$PackageName/core/router/route_names.dart';
@@ -149,10 +141,9 @@ class AppRouter {
   );
 }
 "@
-    #========================
+
     # ROUTE NAMES
-    #========================
-    "lib/core/router/route_names.dart"         = @'
+    "lib/core/router/route_names.dart" = @'
 class RouteNames {
   RouteNames._();
 
@@ -160,13 +151,8 @@ class RouteNames {
 }
 '@
 
-
-    # =========================
-    # APP
-    # =========================
-
-    "lib/app/observers/app_observer.dart"     = @'
-
+    # APP OBSERVER
+    "lib/app/observers/app_observer.dart" = @'
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -205,7 +191,7 @@ class AppBlocObserver extends BlocObserver {
 }
 '@
 
-    "lib/core/theme/app_theme.dart"            = @'
+    "lib/core/theme/app_theme.dart" = @'
 import 'package:flutter/material.dart';
 
 class AppTheme {
@@ -220,20 +206,21 @@ class AppTheme {
   );
 }
 '@
-    "lib/core/constants/app_constants.dart"   = @'
+
+    "lib/core/constants/app_constants.dart" = @'
 class AppConstants {
   AppConstants._();
   static const appName = 'My App';
 }
 '@
-    
-    "lib/core/errors/exceptions.dart"         = @'
+
+    "lib/core/errors/exceptions.dart" = @'
 class ServerException implements Exception {}
 
 class CacheException implements Exception {}
 '@
 
-    "lib/core/errors/failures.dart"           = @'
+    "lib/core/errors/failures.dart" = @'
 abstract class Failure {}
 
 class ServerFailure extends Failure {}
@@ -241,10 +228,7 @@ class ServerFailure extends Failure {}
 class CacheFailure extends Failure {}
 '@
 
-
-
-
-    "lib/core/theme/app_colors.dart"              = @'
+    "lib/core/theme/app_colors.dart" = @'
 import 'package:flutter/material.dart';
 
 class AppColors {
@@ -252,20 +236,23 @@ class AppColors {
 }
 '@
 
-    "lib/core/utils/logger.dart"              = @'
+    "lib/core/utils/logger.dart" = @'
 import 'package:flutter/foundation.dart';
+
 class Logger {
   static void log(Object message) {
     debugPrint(message.toString());
   }
 }
 '@
-    "lib/core/helpers/validators.dart"        = @'
+
+    "lib/core/helpers/validators.dart" = @'
 class Validators {
   static bool isEmail(String value) {
     return value.contains("@");
   }
-      static String? fullName(String? value) {
+
+  static String? fullName(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'Full name is required';
     }
@@ -327,7 +314,7 @@ class Validators {
 }
 '@
 
-    "lib/core/helpers/prefs_helper.dart"      = @'
+    "lib/core/helpers/prefs_helper.dart" = @'
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrefsHelper {
@@ -341,7 +328,7 @@ class PrefsHelper {
   }
 
   // =========================
-  // 🔹 SETTERS
+  // SETTERS
   // =========================
 
   Future<bool> setString(String key, String value) async {
@@ -365,7 +352,7 @@ class PrefsHelper {
   }
 
   // =========================
-  // 🔹 GETTERS
+  // GETTERS
   // =========================
 
   String? getString(String key) {
@@ -389,7 +376,7 @@ class PrefsHelper {
   }
 
   // =========================
-  // 🔹 REMOVE
+  // REMOVE
   // =========================
 
   Future<bool> remove(String key) async {
@@ -405,6 +392,7 @@ class PrefsHelper {
   }
 }
 '@
+
     "lib/core/widgets/custom_text_field.dart" = @'
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -457,35 +445,30 @@ class CustomTextField extends StatelessWidget {
     );
   }
 }
-
 '@
 
     # keep empty asset folders tracked by git
     "assets/images/.gitkeep" = ""
-    "assets/svgs/.gitkeep"  = ""
-
+    "assets/svgs/.gitkeep"   = ""
 
     # Overwrite the default flutter-create test, which references "MyApp"
     # and a counter that no longer exist once this script rewrites main.dart/app.dart.
     "test/widget_test.dart" = @"
-
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:$PackageName/app/my_app.dart';
 
 void main() {
   testWidgets('App builds without crashing', (WidgetTester tester) async {
-	await tester.pumpWidget(const MyApp());
-	expect(find.byType(MyApp), findsOneWidget);
+    await tester.pumpWidget(const MyApp());
+    expect(find.byType(MyApp), findsOneWidget);
   });
 }
 "@
 
 }
 
-
-
-Write-Host "▶ Generating core files..." -ForegroundColor Magenta
+Write-Host "> Generating core files..." -ForegroundColor Magenta
 
 foreach ($file in $files.Keys) {
 
@@ -497,7 +480,7 @@ foreach ($file in $files.Keys) {
 
     $files[$file] | Set-Content -Path $file -Encoding UTF8
 
-    Write-Host "   ✓ " -NoNewline -ForegroundColor DarkCyan
+    Write-Host "   [+] " -NoNewline -ForegroundColor DarkCyan
     Write-Host "$file" -ForegroundColor Gray
 }
 
@@ -506,23 +489,23 @@ Write-Host ""
 # =========================
 # STRUCTURE SUMMARY
 # =========================
-Write-Host "▶ Structure overview" -ForegroundColor Magenta
+Write-Host "> Structure overview" -ForegroundColor Magenta
 Write-Host "   lib" -ForegroundColor White
-Write-Host "   ├── app" -ForegroundColor DarkYellow
-Write-Host "   │   	 ├── my_app.dart, observers" -ForegroundColor Gray
-Write-Host "   ├── core" -ForegroundColor DarkYellow
-Write-Host "   │   ├── constants, errors" -ForegroundColor Gray
-Write-Host "   │   ├── helpers, utils" -ForegroundColor Gray
-Write-Host "   │   └── widgets" -ForegroundColor Gray
-Write-Host "   │   ├── router (go_router)" -ForegroundColor Gray
-Write-Host "   │   └── theme" -ForegroundColor Gray
-Write-Host "   └── features" -ForegroundColor DarkYellow
+Write-Host "   |-- app" -ForegroundColor DarkYellow
+Write-Host "   |   +-- my_app.dart, observers" -ForegroundColor Gray
+Write-Host "   |-- core" -ForegroundColor DarkYellow
+Write-Host "   |   |-- constants, errors" -ForegroundColor Gray
+Write-Host "   |   |-- helpers, utils" -ForegroundColor Gray
+Write-Host "   |   |-- widgets" -ForegroundColor Gray
+Write-Host "   |   |-- router (go_router)" -ForegroundColor Gray
+Write-Host "   |   +-- theme" -ForegroundColor Gray
+Write-Host "   +-- features" -ForegroundColor DarkYellow
 Write-Host ""
 Write-Host "   assets" -ForegroundColor DarkYellow
-Write-Host "   ├── images, icons, fonts, json" -ForegroundColor Gray
+Write-Host "   +-- images, svgs" -ForegroundColor Gray
 Write-Host ""
 
-# Package names only (no pinned versions) — "flutter pub add" below always
+# Package names only (no pinned versions) - "flutter pub add" below always
 # resolves and writes the latest version that's compatible with the
 # project's SDK/dependency constraints, so the toolkit never goes stale.
 $dependencies = @(
@@ -556,7 +539,7 @@ function Add-LatestPackages {
         $pubspecContent = Get-Content "pubspec.yaml"
 
         if ($pubspecContent -match "^\s*$([regex]::Escape($name))\s*:") {
-            Write-Host "   ↷ " -NoNewline -ForegroundColor DarkYellow
+            Write-Host "   [-] " -NoNewline -ForegroundColor DarkYellow
             Write-Host "$name already present, skipping" -ForegroundColor Gray
             continue
         }
@@ -568,17 +551,15 @@ function Add-LatestPackages {
         }
 
         if ($LASTEXITCODE -ne 0) {
-            Write-Host "   ✗ " -NoNewline -ForegroundColor Red
+            Write-Host "   [x] " -NoNewline -ForegroundColor Red
             Write-Host "failed to add $name" -ForegroundColor Gray
             continue
         }
 
-        Write-Host "   ✓ " -NoNewline -ForegroundColor DarkCyan
+        Write-Host "   [+] " -NoNewline -ForegroundColor DarkCyan
         Write-Host "$name (latest compatible version)" -ForegroundColor Gray
     }
 }
-
-Write-Host "▶ Add assets files to pubspec.yaml..." -ForegroundColor Magenta
 
 function Add-Assets {
     param([string[]]$AssetPaths)
@@ -594,7 +575,7 @@ function Add-Assets {
     }
 
     if ($flutterIndex -eq -1) {
-        Write-Host "   ⚠ 'flutter:' section not found, skipping assets." -ForegroundColor Yellow
+        Write-Host "   [!] 'flutter:' section not found, skipping assets." -ForegroundColor Yellow
         return
     }
 
@@ -637,39 +618,39 @@ function Add-Assets {
     $output | Set-Content $pubspecPath -Encoding UTF8
 }
 
-Write-Host "▶ Updating pubspec.yaml (dependencies)..." -ForegroundColor Magenta
+Write-Host "> Updating pubspec.yaml (dependencies)..." -ForegroundColor Magenta
 Add-LatestPackages -Packages $dependencies
 
 Write-Host ""
-Write-Host "▶ Updating pubspec.yaml (dev_dependencies)..." -ForegroundColor Magenta
+Write-Host "> Updating pubspec.yaml (dev_dependencies)..." -ForegroundColor Magenta
 Add-LatestPackages -Packages $devDependencies -Dev
 
 Write-Host ""
-Write-Host "▶ Registering assets folders in pubspec.yaml..." -ForegroundColor Magenta
+Write-Host "> Registering assets folders in pubspec.yaml..." -ForegroundColor Magenta
 $assetPaths = @(
     "assets/images/"
     "assets/svgs/"
-
 )
 Add-Assets -AssetPaths $assetPaths
-Write-Host "   ✓ " -NoNewline -ForegroundColor DarkCyan
+Write-Host "   [+] " -NoNewline -ForegroundColor DarkCyan
 Write-Host "assets section updated" -ForegroundColor Gray
 
 Write-Host ""
-Write-Host "▶ Running flutter pub get..." -ForegroundColor Magenta
-
+Write-Host "> Running flutter pub get..." -ForegroundColor Magenta
 
 flutter pub get
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ flutter pub get failed." -ForegroundColor Red
+    Write-Host "[X] flutter pub get failed." -ForegroundColor Red
     exit
 }
 
 Write-Host ""
-Write-Host "════════════════════════════════════════════════════" -ForegroundColor Green
-Write-Host "✅ Done Successfully! Flutter Architecture Generated." -ForegroundColor Green
-Write-Host "════════════════════════════════════════════════════" -ForegroundColor Green
+Write-Host "====================================================" -ForegroundColor Green
+Write-Host "[OK] Done Successfully! Flutter Architecture Generated." -ForegroundColor Green
+Write-Host "====================================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "▶ Starting build_runner watch..." -ForegroundColor Magenta
+Write-Host "> Starting build_runner watch..." -ForegroundColor Magenta
 Write-Host ""
+
+dart run build_runner watch --delete-conflicting-outputs
